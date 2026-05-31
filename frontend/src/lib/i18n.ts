@@ -3,7 +3,7 @@ export type Locale = 'en' | 'vi';
 const translations: Record<Locale, Record<string, string>> = {
   en: {
     // App
-    'app.name': 'WMS',
+    'app.name': 'INDIBA Asia',
     'app.title': 'Warehouse Management System',
 
     // Auth
@@ -159,7 +159,7 @@ const translations: Record<Locale, Record<string, string>> = {
   },
   vi: {
     // App
-    'app.name': 'WMS',
+    'app.name': 'INDIBA Asia',
     'app.title': 'Hệ Thống Quản Lý Kho',
 
     // Auth

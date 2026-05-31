@@ -281,18 +281,18 @@ function generateMockReport(periodType: string) {
     success: true,
     data: {
       period: { type: periodType, start: '2026-05-01T00:00:00.000Z', end: '2026-05-31T23:59:59.999Z' },
-      totalImports: 280,
-      totalExports: 175,
-      netInventoryChange: 105,
+      totalImports: 45,
+      totalExports: 28,
+      netInventoryChange: 17,
       topProducts: [
-        { skuCode: 'WM-BLK-001', productName: 'Wireless Mouse', totalMoved: 125 },
-        { skuCode: 'USBC-2M-BLK', productName: 'USB-C Cable', totalMoved: 100 },
-        { skuCode: 'KB-RGB-001', productName: 'Mechanical Keyboard', totalMoved: 72 },
-        { skuCode: 'WM-WHT-001', productName: 'Wireless Mouse', totalMoved: 45 },
-        { skuCode: 'KB-RGB-TKL', productName: 'Mechanical Keyboard', totalMoved: 38 },
+        { skuCode: 'CREAM-PRO-500', productName: 'Proionic Cream 500ml', totalMoved: 220 },
+        { skuCode: 'ELEC-CAP-65', productName: 'Capacitive Electrode 65mm', totalMoved: 110 },
+        { skuCode: 'CT9-EU-220V', productName: 'INDIBA Activ CT9', totalMoved: 12 },
+        { skuCode: 'ELEC-RES-45', productName: 'Resistive Electrode 45mm', totalMoved: 45 },
+        { skuCode: 'DB-PRO-EU', productName: 'INDIBA Deep Beauty', totalMoved: 8 },
       ],
-      financialSummary: { totalImportCost: 8450.0, totalExportRevenue: 12380.5 },
-      operationCount: 12,
+      financialSummary: { totalImportCost: 125800.0, totalExportRevenue: 198500.0 },
+      operationCount: 18,
     },
   };
 }
@@ -317,14 +317,14 @@ function generateMockTopProducts() {
     success: true,
     data: {
       top: [
-        { skuId: 'sku-001', skuCode: 'WM-BLK-001', productName: 'Wireless Mouse (Black)', totalExported: 125 },
-        { skuId: 'sku-005', skuCode: 'USBC-2M-BLK', productName: 'USB-C Cable', totalExported: 100 },
-        { skuId: 'sku-003', skuCode: 'KB-RGB-001', productName: 'Mechanical Keyboard (Full)', totalExported: 72 },
-        { skuId: 'sku-002', skuCode: 'WM-WHT-001', productName: 'Wireless Mouse (White)', totalExported: 45 },
-        { skuId: 'sku-004', skuCode: 'KB-RGB-TKL', productName: 'Mechanical Keyboard (TKL)', totalExported: 38 },
+        { skuId: 'sku-010', skuCode: 'CREAM-PRO-500', productName: 'Proionic Cream 500ml', totalExported: 180 },
+        { skuId: 'sku-007', skuCode: 'ELEC-CAP-65', productName: 'Capacitive Electrode 65mm', totalExported: 95 },
+        { skuId: 'sku-001', skuCode: 'CT9-EU-220V', productName: 'INDIBA Activ CT9 (EU)', totalExported: 10 },
+        { skuId: 'sku-009', skuCode: 'ELEC-RES-45', productName: 'Resistive Electrode 45mm', totalExported: 38 },
+        { skuId: 'sku-004', skuCode: 'DB-PRO-EU', productName: 'INDIBA Deep Beauty', totalExported: 6 },
       ],
       bottom: [
-        { skuId: 'sku-006', skuCode: 'MS-ALU-SLV', productName: 'Monitor Stand', totalExported: 3 },
+        { skuId: 'sku-006', skuCode: 'AH100-VET-EU', productName: 'INDIBA Animal Health AH-100', totalExported: 2 },
       ],
     },
   };
@@ -334,8 +334,9 @@ function generateMockReorderAlerts() {
   return {
     success: true,
     data: [
-      { skuId: 'sku-006', skuCode: 'MS-ALU-SLV', productName: 'Monitor Stand', currentStock: 0, pendingImports: 20, forecastedDemand: 35, recommendedReorder: 15, leadTimeDays: 14 },
-      { skuId: 'sku-004', skuCode: 'KB-RGB-TKL', productName: 'Mechanical Keyboard (TKL)', currentStock: 8, pendingImports: 50, forecastedDemand: 65, recommendedReorder: 7, leadTimeDays: 14 },
+      { skuId: 'sku-011', skuCode: 'CREAM-PRO-250', productName: 'Proionic Cream 250ml', currentStock: 0, pendingImports: 150, forecastedDemand: 200, recommendedReorder: 50, leadTimeDays: 21 },
+      { skuId: 'sku-009', skuCode: 'ELEC-RES-45', productName: 'Resistive Electrode 45mm', currentStock: 12, pendingImports: 0, forecastedDemand: 40, recommendedReorder: 28, leadTimeDays: 21 },
+      { skuId: 'sku-005', skuCode: 'KL-CUBE4-30W', productName: 'K-Laser Cube 4', currentStock: 3, pendingImports: 3, forecastedDemand: 8, recommendedReorder: 2, leadTimeDays: 30 },
     ],
   };
 }
