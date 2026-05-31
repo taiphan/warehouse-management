@@ -22,17 +22,30 @@ class ApiClient {
       headers,
     });
 
-    const data = await response.json();
+    const text = await response.text();
+    let data: unknown = null;
+
+    if (text) {
+      try {
+        data = JSON.parse(text);
+      } catch {
+        if (!response.ok) {
+          throw new ApiError('Server returned an invalid response', response.status);
+        }
+        return {} as T;
+      }
+    }
 
     if (!response.ok) {
+      const err = data as { error?: { message?: string; code?: string } } | null;
       throw new ApiError(
-        data.error?.message || 'Request failed',
+        err?.error?.message || `Request failed (${response.status})`,
         response.status,
-        data.error?.code,
+        err?.error?.code,
       );
     }
 
-    return data;
+    return (data ?? {}) as T;
   }
 
   async get<T>(path: string, params?: Record<string, string>): Promise<T> {
