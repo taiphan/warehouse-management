@@ -4,44 +4,46 @@
 
 @layer base {
   :root {
+    /* INDIBA brand: clean white background, deep red primary (#c8102e) */
     --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --foreground: 220 15% 13%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --primary: 348 83% 47%;
+    --card-foreground: 220 15% 13%;
+    --primary: 350 84% 42%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 348 83% 95%;
-    --accent-foreground: 348 83% 47%;
-    --destructive: 0 84.2% 60.2%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 15% 13%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 350 84% 96%;
+    --accent-foreground: 350 84% 42%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 348 83% 47%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 350 84% 42%;
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --primary: 348 83% 55%;
+    /* INDIBA dark: navy background, brighter red primary */
+    --background: 220 20% 7%;
+    --foreground: 0 0% 95%;
+    --card: 220 20% 10%;
+    --card-foreground: 0 0% 95%;
+    --primary: 350 84% 52%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 348 83% 55%;
+    --secondary: 220 15% 15%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 220 15% 15%;
+    --muted-foreground: 220 10% 60%;
+    --accent: 220 15% 15%;
+    --accent-foreground: 0 0% 95%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 95%;
+    --border: 220 15% 18%;
+    --input: 220 15% 18%;
+    --ring: 350 84% 52%;
   }
 }
 
@@ -51,6 +53,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
   input,
   select,

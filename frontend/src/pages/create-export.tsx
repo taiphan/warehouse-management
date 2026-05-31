@@ -12,7 +12,7 @@ interface LineItem {
 
 export function CreateExportPage({ onBack }: { onBack: () => void }) {
   const [destination, setDestination] = useState('');
-  const [reason, setReason] = useState<'SALE' | 'TRANSFER' | 'RETURN'>('SALE');
+  const [reason, setReason] = useState<'SALE' | 'TRANSFER' | 'RETURN' | 'DEMO' | 'GIFT' | 'WARRANTY'>('SALE');
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [error, setError] = useState('');
   const createMutation = useCreateExport();
@@ -110,9 +110,12 @@ export function CreateExportPage({ onBack }: { onBack: () => void }) {
               onChange={(e) => setReason(e.target.value as typeof reason)}
               className="w-full px-3 py-2 border rounded-md text-sm"
             >
-              <option value="SALE">Sale</option>
-              <option value="TRANSFER">Transfer</option>
-              <option value="RETURN">Return to Supplier</option>
+              <option value="SALE">Bán hàng (Sale)</option>
+              <option value="DEMO">Xuất Demo</option>
+              <option value="TRANSFER">Chuyển kho (Transfer)</option>
+              <option value="RETURN">Trả NCC (Return)</option>
+              <option value="GIFT">Tặng (Gift)</option>
+              <option value="WARRANTY">Bảo hành (Warranty)</option>
             </select>
           </div>
         </div>
