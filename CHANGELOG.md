@@ -1,34 +1,38 @@
-# Changelog — WMS (Warehouse Management System)
+# Changelog
 
-## v1.0.0 (2026-05-31)
+## [1.1.0] - 2026-05-31
 
-### Features — Backend
-- Inventory management with real-time stock tracking
-- Order processing and fulfillment workflow
-- Warehouse zone and location management
-- Receiving, putaway, picking, and shipping operations
-- BullMQ job queues for async processing
-- Redis caching for high-frequency lookups
-- PostgreSQL with Prisma ORM
-- JWT authentication and authorization
-- RESTful API with Zod validation
+### Added
+- i18n support with English and Vietnamese translations
+- Language switcher (🇺🇸 / 🇻🇳) on login page and sidebar
+- Dark/Light/System theme switcher
+- Demo user picker on login page (Admin, Manager, Staff)
+- Mock API layer for Vercel deployment (no backend required)
+- Create Import operation page with SKU search and line items
+- Create Export operation page with stock availability display
+- Favicon matching the WMS branding
+- Vercel deployment configuration
 
-### Features — Frontend
-- Dashboard with key warehouse metrics
-- Inventory browser with search and filters
-- Order management with status tracking
-- Warehouse map and zone visualization
-- Form-based data entry with react-hook-form
-- Real-time data with TanStack Query
-- Charts and analytics with Recharts
+### Fixed
+- API client handles empty JSON responses gracefully
+- Vite proxy configuration for correct port forwarding
+- Input text visibility in dark mode
 
-### UI/UX
-- Professional SVG favicon (blue warehouse/roof icon)
-- Radix UI primitives for accessible components
-- Tailwind CSS responsive design
-- Zustand for client-side state
+## [1.0.0] - 2026-05-31
 
-### Infrastructure
-- Vite + React 18 (frontend)
-- Express.js + TypeScript (backend)
-- Port: 3012 (frontend), 4001 (backend)
+### Added
+- Full-stack Warehouse Management System
+- Backend: Express.js + Prisma + PostgreSQL + Redis + BullMQ
+- Frontend: React + Vite + Tailwind CSS + shadcn/ui
+- Authentication with JWT (15min access / 7d refresh tokens)
+- Role-based access control (Admin, Manager, Staff, Viewer)
+- Catalog item CRUD with unique name+category constraint
+- SKU management with barcode validation (EAN-13, UPC-A, Code 128)
+- Import/Export operations with approval workflow (Draft → Review → Approve/Reject)
+- Atomic inventory updates via database transactions
+- Inventory tracking with low-stock alerts
+- Periodic reporting (daily, weekly, monthly, quarterly, yearly)
+- Analytics: moving averages, top products, turnover rates, trend lines
+- Predictive sales forecasting with reorder alerts
+- Audit logging (append-only, immutable)
+- Docker Compose for local development (PostgreSQL 16 + Redis 7)
