@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useAuthStore } from '@/stores/auth.store';
+import { useLocaleStore } from '@/stores/locale.store';
+import { LocaleSwitcher } from '@/components/layout/locale-switcher';
 import { api } from '@/lib/api';
 
 interface LoginResponse {
@@ -46,6 +48,7 @@ const DEMO_USERS = [
 
 export function LoginPage() {
   const { login } = useAuthStore();
+  const { t } = useLocaleStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -82,15 +85,18 @@ export function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
       <div className="w-full max-w-md bg-card p-8 rounded-lg border shadow-sm">
-        <h1 className="text-2xl font-bold text-center mb-1">WMS</h1>
-        <p className="text-sm text-muted-foreground text-center mb-6">
-          Warehouse Management System
+        <div className="flex justify-between items-start mb-1">
+          <h1 className="text-2xl font-bold">{t('app.name')}</h1>
+          <LocaleSwitcher />
+        </div>
+        <p className="text-sm text-muted-foreground mb-6">
+          {t('app.title')}
         </p>
 
         {/* Demo Users */}
         <div className="mb-6">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
-            Quick Login — Demo Users
+            {t('auth.demo_users')}
           </p>
           <div className="space-y-2">
             {DEMO_USERS.map((user) => (
@@ -122,7 +128,7 @@ export function LoginPage() {
             <div className="w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs">
-            <span className="bg-card px-2 text-muted-foreground">or sign in manually</span>
+            <span className="bg-card px-2 text-muted-foreground">{t('auth.or_manual')}</span>
           </div>
         </div>
 
@@ -160,7 +166,7 @@ export function LoginPage() {
             disabled={loading}
             className="w-full py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:opacity-90 disabled:opacity-50"
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? t('auth.logging_in') : t('auth.login')}
           </button>
         </form>
       </div>
