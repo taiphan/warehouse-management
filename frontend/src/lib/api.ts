@@ -1,4 +1,7 @@
+import { mockRequest } from './mock-api';
+
 const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
+const USE_MOCK = import.meta.env.VITE_USE_MOCK !== 'false';
 
 class ApiClient {
   private token: string | null = null;
@@ -8,6 +11,16 @@ class ApiClient {
   }
 
   private async request<T>(path: string, options: RequestInit = {}): Promise<T> {
+    // Use mock API when no backend is configured
+    if (USE_MOCK) {
+      const result = await mockRequest(path, options);
+      const res = result as { success?: boolean; error?: { message?: string; code?: string } };
+      if (res.success === false && res.error) {
+        throw new ApiError(res.error.message || 'Request failed', 400, res.error.code);
+      }
+      return result as T;
+    }
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...((options.headers as Record<string, string>) || {}),
