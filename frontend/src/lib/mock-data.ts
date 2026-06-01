@@ -251,3 +251,135 @@ export const INITIAL_OPERATIONS = [
     ],
   },
 ];
+
+
+// ============================================================
+// SALES ORDERS — Multi-stage export workflow
+// ============================================================
+
+export type SalesStage = 'SALES_QUOTE' | 'DOCUMENT_PREPARATION' | 'WAREHOUSE_RELEASE' | 'FULFILLED' | 'CANCELLED';
+
+export interface SalesOrder {
+  id: string;
+  orderNumber: string;
+  customerName: string;
+  customerAddress: string | null;
+  discountPercent: number;
+  paymentTerms: string;
+  currentStage: SalesStage;
+  createdById: string;
+  createdAt: string;
+  updatedAt: string;
+  cancelledReason: string | null;
+  lineItems: { id: string; skuId: string; quantity: number; unitPrice: number }[];
+  stageHistory: {
+    stage: SalesStage;
+    completedById: string | null;
+    completedAt: string | null;
+    deadlineAt: string;
+    slaBreached: boolean;
+  }[];
+  documents: { type: 'INVOICE' | 'PACKING_LIST' | 'DELIVERY_NOTE'; generatedAt: string }[];
+}
+
+// SLA durations in milliseconds
+export const SLA_DURATIONS: Record<SalesStage, number> = {
+  SALES_QUOTE: 24 * 60 * 60 * 1000, // 24 hours
+  DOCUMENT_PREPARATION: 4 * 60 * 60 * 1000, // 4 hours
+  WAREHOUSE_RELEASE: 24 * 60 * 60 * 1000, // 1 working day
+  FULFILLED: 0,
+  CANCELLED: 0,
+};
+
+export const STAGE_OWNERS: Record<SalesStage, string> = {
+  SALES_QUOTE: 'Sales',
+  DOCUMENT_PREPARATION: 'Admin',
+  WAREHOUSE_RELEASE: 'Warehouse',
+  FULFILLED: '—',
+  CANCELLED: '—',
+};
+
+export const INITIAL_SALES_ORDERS: SalesOrder[] = [
+  {
+    id: 'so-001',
+    orderNumber: 'SO-2026-000001',
+    customerName: 'PhysioWorks Clinic',
+    customerAddress: '123 Orchard Road, Singapore 238858',
+    discountPercent: 10,
+    paymentTerms: 'NET 30',
+    currentStage: 'DOCUMENT_PREPARATION',
+    createdById: 'user-staff-001',
+    createdAt: '2026-05-29T08:00:00.000Z',
+    updatedAt: '2026-05-29T14:00:00.000Z',
+    cancelledReason: null,
+    lineItems: [
+      { id: 'sli-001', skuId: 'sku-001', quantity: 2, unitPrice: 6800.0 },
+      { id: 'sli-002', skuId: 'sku-007', quantity: 10, unitPrice: 85.0 },
+    ],
+    stageHistory: [
+      {
+        stage: 'SALES_QUOTE',
+        completedById: 'user-staff-001',
+        completedAt: '2026-05-29T14:00:00.000Z',
+        deadlineAt: '2026-05-30T08:00:00.000Z',
+        slaBreached: false,
+      },
+      {
+        stage: 'DOCUMENT_PREPARATION',
+        completedById: null,
+        completedAt: null,
+        deadlineAt: '2026-05-29T18:00:00.000Z',
+        slaBreached: true,
+      },
+    ],
+    documents: [],
+  },
+  {
+    id: 'so-002',
+    orderNumber: 'SO-2026-000002',
+    customerName: 'Bangkok Beauty Center',
+    customerAddress: '99 Sukhumvit Road, Bangkok 10110',
+    discountPercent: 5,
+    paymentTerms: 'NET 15',
+    currentStage: 'SALES_QUOTE',
+    createdById: 'user-staff-001',
+    createdAt: '2026-05-31T09:00:00.000Z',
+    updatedAt: '2026-05-31T09:00:00.000Z',
+    cancelledReason: null,
+    lineItems: [{ id: 'sli-003', skuId: 'sku-004', quantity: 1, unitPrice: 5900.0 }],
+    stageHistory: [
+      {
+        stage: 'SALES_QUOTE',
+        completedById: null,
+        completedAt: null,
+        deadlineAt: '2026-06-01T09:00:00.000Z',
+        slaBreached: false,
+      },
+    ],
+    documents: [],
+  },
+  {
+    id: 'so-003',
+    orderNumber: 'SO-2026-000003',
+    customerName: 'VetCare Animal Hospital',
+    customerAddress: 'Petaling Jaya, Selangor, Malaysia',
+    discountPercent: 8,
+    paymentTerms: 'NET 30',
+    currentStage: 'FULFILLED',
+    createdById: 'user-staff-001',
+    createdAt: '2026-04-10T10:00:00.000Z',
+    updatedAt: '2026-04-15T16:00:00.000Z',
+    cancelledReason: null,
+    lineItems: [{ id: 'sli-004', skuId: 'sku-006', quantity: 2, unitPrice: 5200.0 }],
+    stageHistory: [
+      { stage: 'SALES_QUOTE', completedById: 'user-staff-001', completedAt: '2026-04-10T15:00:00.000Z', deadlineAt: '2026-04-11T10:00:00.000Z', slaBreached: false },
+      { stage: 'DOCUMENT_PREPARATION', completedById: 'user-admin-001', completedAt: '2026-04-11T11:00:00.000Z', deadlineAt: '2026-04-10T19:00:00.000Z', slaBreached: false },
+      { stage: 'WAREHOUSE_RELEASE', completedById: 'user-mgr-001', completedAt: '2026-04-15T16:00:00.000Z', deadlineAt: '2026-04-12T11:00:00.000Z', slaBreached: false },
+    ],
+    documents: [
+      { type: 'INVOICE', generatedAt: '2026-04-11T11:00:00.000Z' },
+      { type: 'PACKING_LIST', generatedAt: '2026-04-11T11:05:00.000Z' },
+      { type: 'DELIVERY_NOTE', generatedAt: '2026-04-15T16:00:00.000Z' },
+    ],
+  },
+];

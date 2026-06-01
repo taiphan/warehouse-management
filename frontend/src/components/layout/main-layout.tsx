@@ -5,6 +5,7 @@ import { LoginPage } from '@/pages/login';
 import { DashboardPage } from '@/pages/dashboard';
 import { CatalogPage } from '@/pages/catalog';
 import { OperationsPage } from '@/pages/operations';
+import { SalesOrdersPage } from '@/pages/sales-orders';
 import { InventoryPage } from '@/pages/inventory';
 import { ReportsPage } from '@/pages/reports';
 import { AnalyticsPage } from '@/pages/analytics';
@@ -13,6 +14,7 @@ const pages: Record<string, () => JSX.Element> = {
   Dashboard: DashboardPage,
   Catalog: CatalogPage,
   Operations: OperationsPage,
+  SalesOrders: SalesOrdersPage,
   Inventory: InventoryPage,
   Reports: ReportsPage,
   Analytics: AnalyticsPage,

@@ -7,6 +7,7 @@ const navItems = [
   { key: 'Dashboard', icon: '📊', i18n: 'nav.dashboard' },
   { key: 'Catalog', icon: '📦', i18n: 'nav.catalog' },
   { key: 'Operations', icon: '🔄', i18n: 'nav.operations' },
+  { key: 'SalesOrders', icon: '🛒', i18n: 'nav.sales_orders' },
   { key: 'Inventory', icon: '📋', i18n: 'nav.inventory' },
   { key: 'Reports', icon: '📈', i18n: 'nav.reports' },
   { key: 'Analytics', icon: '🔬', i18n: 'nav.analytics' },

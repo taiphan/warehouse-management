@@ -1,4 +1,4 @@
-import { DEMO_USERS, INITIAL_CATALOG, INITIAL_SKUS, INITIAL_INVENTORY, INITIAL_OPERATIONS } from './mock-data';
+import { DEMO_USERS, INITIAL_CATALOG, INITIAL_SKUS, INITIAL_INVENTORY, INITIAL_OPERATIONS, INITIAL_SALES_ORDERS, SLA_DURATIONS, type SalesOrder, type SalesStage } from './mock-data';
 
 type Operation = {
   id: string;
@@ -201,6 +201,33 @@ export async function mockRequest(path: string, options: RequestInit = {}): Prom
     return { success: true, data: { skuId: segments[1], dailyForecasts: [], methodology: 'Exponential Smoothing', dataRange: { start: '2026-01-01', end: '2026-05-31' }, generatedAt: new Date().toISOString() } };
   }
 
+  // SALES ORDERS
+  if (segments[0] === 'sales-orders' && method === 'GET' && segments.length === 1) {
+    const orders = getStore<SalesOrder[]>('sales-orders', INITIAL_SALES_ORDERS).map(refreshSlaStatus);
+    let filtered = [...orders];
+    if (params.stage) filtered = filtered.filter((o) => o.currentStage === params.stage);
+    return { success: true, ...paginate(filtered.sort((a, b) => b.createdAt.localeCompare(a.createdAt)), Number(params.page) || 1, Number(params.pageSize) || 20) };
+  }
+
+  if (segments[0] === 'sales-orders' && method === 'POST' && segments.length === 1) {
+    return createSalesOrder(body);
+  }
+
+  if (segments[0] === 'sales-orders' && segments.length === 2 && method === 'GET') {
+    const orders = getStore<SalesOrder[]>('sales-orders', INITIAL_SALES_ORDERS).map(refreshSlaStatus);
+    const order = orders.find((o) => o.id === segments[1]);
+    if (!order) return { success: false, error: { code: 'NOT_FOUND', message: 'Sales order not found' } };
+    return { success: true, data: order };
+  }
+
+  if (segments[0] === 'sales-orders' && segments.length === 3 && segments[2] === 'advance' && method === 'POST') {
+    return advanceSalesStage(segments[1]);
+  }
+
+  if (segments[0] === 'sales-orders' && segments.length === 3 && segments[2] === 'cancel' && method === 'POST') {
+    return cancelSalesOrder(segments[1], body?.reason);
+  }
+
   // AUDIT
   if (segments[0] === 'audit-logs') {
     return { success: true, ...paginate([], 1, 20) };
@@ -339,4 +366,149 @@ function generateMockReorderAlerts() {
       { skuId: 'sku-005', skuCode: 'KL-CUBE4-30W', productName: 'K-Laser Cube 4', currentStock: 3, pendingImports: 3, forecastedDemand: 8, recommendedReorder: 2, leadTimeDays: 30 },
     ],
   };
+}
+
+
+// ============================================================
+// SALES ORDER HELPERS
+// ============================================================
+
+const STAGE_FLOW: SalesStage[] = ['SALES_QUOTE', 'DOCUMENT_PREPARATION', 'WAREHOUSE_RELEASE', 'FULFILLED'];
+
+function nextStage(current: SalesStage): SalesStage | null {
+  const idx = STAGE_FLOW.indexOf(current);
+  if (idx === -1 || idx >= STAGE_FLOW.length - 1) return null;
+  return STAGE_FLOW[idx + 1];
+}
+
+function refreshSlaStatus(order: SalesOrder): SalesOrder {
+  const now = Date.now();
+  return {
+    ...order,
+    stageHistory: order.stageHistory.map((sh) => {
+      if (sh.completedAt) return sh;
+      const breached = new Date(sh.deadlineAt).getTime() < now;
+      return { ...sh, slaBreached: breached };
+    }),
+  };
+}
+
+function createSalesOrder(body: Record<string, unknown>) {
+  const orders = getStore<SalesOrder[]>('sales-orders', INITIAL_SALES_ORDERS);
+  const count = orders.length + 1;
+  const now = new Date();
+  const order: SalesOrder = {
+    id: uuid(),
+    orderNumber: `SO-2026-${String(count).padStart(6, '0')}`,
+    customerName: body.customerName as string,
+    customerAddress: (body.customerAddress as string) || null,
+    discountPercent: (body.discountPercent as number) || 0,
+    paymentTerms: (body.paymentTerms as string) || 'NET 30',
+    currentStage: 'SALES_QUOTE',
+    createdById: 'user-staff-001',
+    createdAt: now.toISOString(),
+    updatedAt: now.toISOString(),
+    cancelledReason: null,
+    lineItems: ((body.lineItems as Array<{ skuId: string; quantity: number; unitPrice: number }>) || []).map((li) => ({
+      id: uuid(),
+      skuId: li.skuId,
+      quantity: li.quantity,
+      unitPrice: li.unitPrice,
+    })),
+    stageHistory: [
+      {
+        stage: 'SALES_QUOTE',
+        completedById: null,
+        completedAt: null,
+        deadlineAt: new Date(now.getTime() + SLA_DURATIONS.SALES_QUOTE).toISOString(),
+        slaBreached: false,
+      },
+    ],
+    documents: [],
+  };
+  orders.push(order);
+  setStore('sales-orders', orders);
+  return { success: true, data: order };
+}
+
+function advanceSalesStage(orderId: string) {
+  const orders = getStore<SalesOrder[]>('sales-orders', INITIAL_SALES_ORDERS);
+  const inventory = getStore('inventory', INITIAL_INVENTORY);
+  const idx = orders.findIndex((o) => o.id === orderId);
+  if (idx === -1) return { success: false, error: { code: 'NOT_FOUND', message: 'Sales order not found' } };
+
+  const order = orders[idx];
+  const next = nextStage(order.currentStage);
+  if (!next) return { success: false, error: { code: 'BUSINESS_RULE_VIOLATION', message: 'Order already complete' } };
+
+  const now = new Date();
+  const completedHistory = order.stageHistory.map((sh) =>
+    sh.stage === order.currentStage && !sh.completedAt
+      ? { ...sh, completedById: 'user-admin-001', completedAt: now.toISOString() }
+      : sh,
+  );
+
+  // Stock check on warehouse release
+  if (next === 'FULFILLED') {
+    for (const li of order.lineItems) {
+      const invIdx = inventory.findIndex((i) => i.skuId === li.skuId);
+      if (invIdx === -1 || inventory[invIdx].quantity < li.quantity) {
+        return { success: false, error: { code: 'BUSINESS_RULE_VIOLATION', message: `Insufficient stock for SKU ${li.skuId}` } };
+      }
+    }
+    for (const li of order.lineItems) {
+      const invIdx = inventory.findIndex((i) => i.skuId === li.skuId);
+      inventory[invIdx].quantity -= li.quantity;
+    }
+    setStore('inventory', inventory);
+  }
+
+  // Auto-generate documents on doc preparation completion
+  let documents = order.documents;
+  if (order.currentStage === 'DOCUMENT_PREPARATION') {
+    documents = [
+      { type: 'INVOICE', generatedAt: now.toISOString() },
+      { type: 'PACKING_LIST', generatedAt: now.toISOString() },
+      { type: 'DELIVERY_NOTE', generatedAt: now.toISOString() },
+    ];
+  }
+
+  const newHistory = [...completedHistory];
+  if (next !== 'FULFILLED') {
+    newHistory.push({
+      stage: next,
+      completedById: null,
+      completedAt: null,
+      deadlineAt: new Date(now.getTime() + SLA_DURATIONS[next]).toISOString(),
+      slaBreached: false,
+    });
+  }
+
+  orders[idx] = {
+    ...order,
+    currentStage: next,
+    updatedAt: now.toISOString(),
+    stageHistory: newHistory,
+    documents,
+  };
+  setStore('sales-orders', orders);
+  return { success: true, data: orders[idx] };
+}
+
+function cancelSalesOrder(orderId: string, reason: string) {
+  if (!reason || reason.length < 5) {
+    return { success: false, error: { code: 'VALIDATION_ERROR', message: 'Cancellation reason is required (min 5 characters)' } };
+  }
+  const orders = getStore<SalesOrder[]>('sales-orders', INITIAL_SALES_ORDERS);
+  const idx = orders.findIndex((o) => o.id === orderId);
+  if (idx === -1) return { success: false, error: { code: 'NOT_FOUND', message: 'Sales order not found' } };
+
+  orders[idx] = {
+    ...orders[idx],
+    currentStage: 'CANCELLED',
+    cancelledReason: reason,
+    updatedAt: new Date().toISOString(),
+  };
+  setStore('sales-orders', orders);
+  return { success: true, data: orders[idx] };
 }

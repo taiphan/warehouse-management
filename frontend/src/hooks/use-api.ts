@@ -125,3 +125,49 @@ export function useReorderAlerts() {
     queryFn: () => api.get<ApiResponse<ReorderAlert[]>>('/predictions/reorder-alerts'),
   });
 }
+
+
+// Sales Orders
+export function useSalesOrders(params?: Record<string, string>) {
+  return useQuery({
+    queryKey: ['sales-orders', params],
+    queryFn: () => api.get<PaginatedResponse<unknown>>('/sales-orders', params),
+    refetchInterval: 30000,
+  });
+}
+
+export function useSalesOrder(id: string) {
+  return useQuery({
+    queryKey: ['sales-orders', id],
+    queryFn: () => api.get<ApiResponse<unknown>>(`/sales-orders/${id}`),
+    enabled: !!id,
+  });
+}
+
+export function useCreateSalesOrder() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: unknown) => api.post('/sales-orders', data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['sales-orders'] }),
+  });
+}
+
+export function useAdvanceSalesStage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.post(`/sales-orders/${id}/advance`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['sales-orders'] });
+      qc.invalidateQueries({ queryKey: ['inventory'] });
+    },
+  });
+}
+
+export function useCancelSalesOrder() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
+      api.post(`/sales-orders/${id}/cancel`, { reason }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['sales-orders'] }),
+  });
+}
