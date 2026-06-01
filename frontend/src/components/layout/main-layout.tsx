@@ -9,6 +9,7 @@ import { SalesOrdersPage } from '@/pages/sales-orders';
 import { InventoryPage } from '@/pages/inventory';
 import { ReportsPage } from '@/pages/reports';
 import { AnalyticsPage } from '@/pages/analytics';
+import { HelpPage } from '@/pages/help';
 
 const pages: Record<string, () => JSX.Element> = {
   Dashboard: DashboardPage,
@@ -18,6 +19,7 @@ const pages: Record<string, () => JSX.Element> = {
   Inventory: InventoryPage,
   Reports: ReportsPage,
   Analytics: AnalyticsPage,
+  Help: HelpPage,
 };
 
 export function MainLayout() {

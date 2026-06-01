@@ -11,6 +11,7 @@ const navItems = [
   { key: 'Inventory', icon: '📋', i18n: 'nav.inventory' },
   { key: 'Reports', icon: '📈', i18n: 'nav.reports' },
   { key: 'Analytics', icon: '🔬', i18n: 'nav.analytics' },
+  { key: 'Help', icon: '❓', i18n: 'nav.help' },
 ];
 
 interface SidebarProps {
